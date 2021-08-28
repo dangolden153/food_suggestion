@@ -17,14 +17,14 @@ import { useSelector } from "react-redux";
 import { Button } from "react-native-elements/dist/buttons/Button";
 import { useNavigation } from "@react-navigation/native";
 
-const FoodDetail = ({ route }) => {
+const MealContent = ({ route }) => {
   const [status, setStatus] = React.useState({});
   const [state, setState] = React.useState(false);
   const navigation = useNavigation();
   const { cupboard, foodRecipes } = useSelector((state) => state);
 
-  const { item } = route.params;
-  const { mealName, description, id, img, screenName } = item;
+  const { mealName, description, id, img, screenName } = route.params.item;
+  //   const { mealName, description, id, img, screenName } = item;
   const video = React.useRef(null);
   const dispatch = useDispatch();
   const toggleFav = () => setState(!state);
@@ -38,8 +38,8 @@ const FoodDetail = ({ route }) => {
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      {/* <TouchableOpacity
-        onPress={() => navigation.navigate("Brunch")}
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
         style={{
           backgroundColor: "#c4c4c4",
           borderRadius: 100,
@@ -54,8 +54,8 @@ const FoodDetail = ({ route }) => {
           zIndex: 1,
         }}
       >
-        <AntDesign name="arrowleft" size={60} color="red" />
-      </TouchableOpacity> */}
+        <AntDesign name="arrowleft" size={30} color="black" />
+      </TouchableOpacity>
       <View style={styles.videoContainer}>
         <Video
           style={{ height: "100%", width: "100%" }}
@@ -73,7 +73,7 @@ const FoodDetail = ({ route }) => {
         {/* /////// feedback section */}
         <View style={styles.feedback}>
           <Text style={{ color: "white", fontSize: 20, color: "#F7B02E" }}>
-            {/* Feedback */}
+            Feedback
           </Text>
 
           <View
@@ -134,8 +134,12 @@ const FoodDetail = ({ route }) => {
             }}
             onPress={toggleFav}
           >
-            <TouchableOpacity onPress={() => navigation.navigate("meal")}>
-              <Ionicons name="heart" size={28} color="red" />
+            <TouchableOpacity onPress={toggleFav}>
+              {state ? (
+                <Ionicons name="heart" size={28} color="red" />
+              ) : (
+                <Ionicons name="heart-outline" size={28} color="red" />
+              )}
             </TouchableOpacity>
           </View>
 
@@ -156,7 +160,7 @@ const FoodDetail = ({ route }) => {
   );
 };
 
-export default FoodDetail;
+export default MealContent;
 
 const styles = StyleSheet.create({
   container: {

@@ -9,10 +9,12 @@ import {
   ScrollView,
   TextInput,
   Image,
+  SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 import { Input, Button } from "react-native-elements";
 import { Context } from "../context";
-import pics from "../images/login.png";
+import pics from "../images/apple.png";
 
 const Sign_up = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -36,11 +38,46 @@ const Sign_up = ({ navigation }) => {
     setState(state + 1);
   };
 
+  const signUp = async () => {
+    console.log("hallo");
+    fetch("http://10.0.2.2:5000/api/user/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        password: password,
+        comfirmPassword: comfirmPassword,
+      }),
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        console.log(data);
+        try {
+          await AsyncStorage.setItem("token", data);
+        } catch {
+          (err) => console.log(err);
+        }
+      });
+  };
+
   // {Platform.OS ? "padding" : "height"}
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      {/* <Image style={{height: 50, width:50}} /> */}
+      <Image
+        source={pics}
+        style={{
+          height: 250,
+          width: 150,
+          position: "absolute",
+          top: 30,
+          left: "33%",
+          resizeMode: "contain",
+        }}
+      />
       <View style={styles.contBackground}>
         <KeyboardAvoidingView
           style={styles.contBackgroundAvoidingVIew}
@@ -54,6 +91,7 @@ const Sign_up = ({ navigation }) => {
               fontSize: 30,
               letterSpacing: 1,
               fontWeight: "bold",
+              color: "white",
             }}
           >
             Sign up
@@ -106,18 +144,20 @@ const Sign_up = ({ navigation }) => {
               buttonStyle={{ backgroundColor: "#F64B29" }}
               title="Sign up"
               raised
-              onPress={navigateContext}
+              onPress={() => signUp()}
             />
 
-            <Text style={{ paddingTop: 20, fontSize: 16 }}>
-              you already have an account?{" "}
-              <Text
-                style={{ color: "#f64b29" }}
-                onPress={() => navigation.navigate("signin")}
-              >
-                Login in
+            <TouchableOpacity>
+              <Text style={{ paddingTop: 20, fontSize: 16, color: "white" }}>
+                you already have an account?{" "}
+                <Text
+                  style={{ color: "#f64b29" }}
+                  onPress={() => navigation.navigate("signin")}
+                >
+                  Login in
+                </Text>
               </Text>
-            </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={{ height: 20 }} />
@@ -134,7 +174,7 @@ const Sign_up = ({ navigation }) => {
           <View style={styles.circleBox10} />
         </KeyboardAvoidingView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -143,12 +183,12 @@ export default Sign_up;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1A1A21",
+    backgroundColor: "#C4C4C4", /////1A1A21
     position: "relative",
   },
   contBackground: {
-    backgroundColor: "#C4C4C4",
-    height: "80%",
+    backgroundColor: "#1A1A21", /////C4C4C4
+    height: "70%",
     width: "100%",
     position: "absolute",
     bottom: 0,

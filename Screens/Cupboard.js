@@ -20,23 +20,22 @@ import { foodType } from "../reducer/foodReducer/food_type";
 import EmptyCupoard from "../components/EmptyCupoard";
 
 const Cupboard = ({ navigation }) => {
-  const { cupboard } = useSelector((state) => state);
-
-  console.log(cupboard);
-
+  const { cupboard, foodRecipes } = useSelector((state) => state);
+  // console.log(cupboard);
   const dispatch = useDispatch();
 
   const renderMealMenu = (item) => {
+    const { mealName, description, img } = item;
     return (
       <View>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.menuStyle}
         >
-          {/* <Image
-            source={item?.img}
+          <Image
+            source={img}
             style={{ height: 100, width: 100, borderRadius: 20 }}
-          /> */}
+          />
           <View style={styles.right_flex}>
             <View
               style={{
@@ -48,7 +47,7 @@ const Cupboard = ({ navigation }) => {
               <Text
                 style={{ color: "#E5E5E5", fontSize: 20, fontWeight: "bold" }}
               >
-                {item.mealName}
+                {mealName}
               </Text>
               <TouchableOpacity activeOpacity={0.5}>
                 <Ionicons name="close" size={30} color="#dddddd" />
@@ -64,7 +63,7 @@ const Cupboard = ({ navigation }) => {
                 overflow: "hidden",
               }}
             >
-              {/* {item?.description} */} tfyguhj
+              {description}
             </Text>
 
             <View style={styles.iconBtn}>
@@ -76,7 +75,7 @@ const Cupboard = ({ navigation }) => {
                   onPress={() =>
                     dispatch({
                       type: foodType.FOOD_DATA,
-                      payload: item,
+                      payload: { description, mealName, id, img },
                     })
                   }
                 />
@@ -102,6 +101,8 @@ const Cupboard = ({ navigation }) => {
       ) : (
         <EmptyCupoard />
       )}
+
+      {/* <EmptyCupoard /> */}
     </View>
   );
 };

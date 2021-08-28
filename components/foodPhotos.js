@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Image } from "react-native-elements/dist/image/Image";
 import { mealData } from "./data";
@@ -6,10 +6,13 @@ import EmptyPost from "./EmptyPost";
 import { useSelector } from "react-redux";
 
 const FoodPhotos = () => {
+  const [state, setstate] = useState(false);
   const { foodRecipes } = useSelector((state) => state);
+
+  const toggleState = () => setstate(!state);
   return (
     <>
-      {foodRecipes.length > 0 ? (
+      {mealData.length > 0 ? (
         <View style={styles.container}>
           <View style={styles.box}>
             <Text
@@ -28,6 +31,7 @@ const FoodPhotos = () => {
               {mealData.map((meal) => (
                 <View style={styles.content} meal={meal} key={meal.id}>
                   <Image
+                    onPress={toggleState}
                     source={meal.img}
                     style={{
                       height: 80,
@@ -36,9 +40,15 @@ const FoodPhotos = () => {
                       margin: 10,
                     }}
                   />
-                  <Text style={{ fontSize: 17, color: "black" }}>
-                    {meal.mealName}
-                  </Text>
+                  {state ? (
+                    <Text style={{ fontSize: 17, color: "red" }}>
+                      {meal.mealName}
+                    </Text>
+                  ) : (
+                    <Text style={{ fontSize: 17, color: "black" }}>
+                      {meal.mealName}
+                    </Text>
+                  )}
                 </View>
               ))}
             </ScrollView>

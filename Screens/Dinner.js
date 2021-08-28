@@ -1,14 +1,15 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TextInput } from "react-native";
 import { Button } from "react-native-elements/dist/buttons/Button";
 import { Divider, SearchBar } from "react-native-elements";
 import { Image } from "react-native-elements/dist/image/Image";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
-import { BtnText } from "../components/Button";
-import { useDispatch, useSelector } from "react-redux";
-
+import { Ionicons, AntDesign } from "@expo/vector-icons";
+import { useDispatch, useSelector, connect } from "react-redux";
+import { foodType } from "../reducer/foodReducer/food_type";
+import { AddFoodToCupboard } from "../reducer/foodReducer/food_action";
+import { useNavigation } from "@react-navigation/native";
 const mealData = [
   {
     id: 1,
@@ -19,13 +20,15 @@ const mealData = [
   {
     id: 2,
     mealName: "Fried rice",
-    description: "react native elements dist image",
+    description:
+      "In this video, you will learn React Native and AWS Amplify from scratch by building a cross-platform (ios and android), full-stack Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail.",
     img: require("../images/food_2.jpg"),
   },
   {
     id: 3,
     mealName: "Vegetable",
-    description: "react native elements dist image",
+    description:
+      "learn React Native and AWS Amplify from scratch by building a cross-platform (ios and android), full-stack Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail. Tinder clone. This project is a great way to get your foot in the door with hybrid, cross-platform mobile development with React Native and AWS Amplify. This is a beginner-friendly tutorial, and all the steps and concepts will be explained in detail react native elements dist image",
     img: require("../images/food_3.jpg"),
   },
   {
@@ -55,21 +58,23 @@ const mealData = [
   },
 ];
 
-const Menu = ({ navigation }) => {
+const Dinner = ({ navigation }) => {
   const [search, setSearch] = useState("");
   const [searchBAar, setSearchBar] = useState(false);
-
+  // const navigation = useNavigation();
   const openSearchBAar = () => setSearchBar(true);
   const closeSearchBAar = () => setSearchBar(false);
   const { cupboard } = useSelector((state) => state);
-  console.log(cupboard);
+  // console.log(cupboard);
+
   const dispatch = useDispatch();
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: { backgroundColor: "#F64B29" },
       headerTitleStyle: { color: "white" },
       headerTintColor: "white",
-      title: "Breakfast Menu",
+      title: "Dinner",
       headerRight: () => (
         <View
           style={{
@@ -101,51 +106,6 @@ const Menu = ({ navigation }) => {
     });
   }, [navigation]);
 
-  ////// data been rendered by an array
-
-  const renderMealMenu = (item) => {
-    const { img, mealName, description, id } = item;
-    return (
-      <View>
-        <ScrollView contentContainerStyle={styles.menuStyle}>
-          <Image
-            source={img}
-            style={{ height: 80, width: 80, borderRadius: 20 }}
-          />
-          <View style={styles.right_flex}>
-            <Text style={{ color: "white", fontSize: 20 }}>{mealName}</Text>
-            <Text
-              numberOfLines={1}
-              style={{ color: "white", fontSize: 16, width: 230 }}
-            >
-              {description}
-            </Text>
-
-            <View style={styles.iconBtn}>
-              <Ionicons name="heart-outline" size={30} color="white" />
-              {/* <BtnText
-                title="kitchen"
-                navigation="Details"
-                // onPress={() => navigation.navigate("Details")}
-              /> */}
-              <Button
-                title="kitchen"
-                containerStyle={styles.btnText}
-                onPress={
-                  () =>
-                    navigation.navigate("Details", {
-                      item,
-                    })
-                  //   dispatch({ type: "CUPBOARD", payload: item })
-                }
-              />
-            </View>
-          </View>
-        </ScrollView>
-        <Divider style={{ marginVertical: 10 }} />
-      </View>
-    );
-  };
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -171,47 +131,72 @@ const Menu = ({ navigation }) => {
         </View>
       ) : null}
 
+      {/* /////////// maped items */}
       <FlatList
         style={{ padding: 20 }}
         data={mealData}
-        renderItem={({ item }) => {
-          return renderMealMenu(item);
-        }}
         keyExtractor={(item) => `${item.id}`}
+        renderItem={({ item: { img, mealName, description, id }, item }) => (
+          <View style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.menuStyle}>
+              <Image
+                source={img}
+                style={{ height: 80, width: 80, borderRadius: 20 }}
+              />
+              <View style={styles.right_flex}>
+                <Text style={{ color: "white", fontSize: 20 }}>{mealName}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={{ color: "white", fontSize: 16, width: 230 }}
+                >
+                  {description}
+                </Text>
+
+                <Button
+                  title="kitchen"
+                  titleStyle={{ fontSize: 13 }}
+                  containerStyle={styles.btnText}
+                  onPress={() => {
+                    /* 1. Navigate to the Details route with params */
+                    navigation.navigate("MealContent", {
+                      item,
+                    });
+                  }}
+                />
+              </View>
+            </ScrollView>
+            <Divider style={{ marginVertical: 10 }} />
+          </View>
+        )}
       />
     </View>
   );
 };
 
-export default Menu;
+const mapDispatchToProps = (Dispatch) => ({
+  addFood: (item) => Dispatch(AddFoodToCupboard(item)),
+});
+
+export default connect(null, mapDispatchToProps)(Dinner);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1A1A21",
-    // alignItems:"center",
-    // justifyContent:"center",
-    // width:"100%",
+    paddingHorizontal: 10,
+    paddingVertical: 15,
   },
   menuStyle: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    margin: 10,
+    marginVertical: 10,
+    width: "100%",
   },
 
-  right_flex: {},
+  right_flex: {
+    width: "60%",
+  },
 
-  iconBtn: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  btn: {
-    color: "#F64B29",
-    borderColor: "#F64B29",
-  },
   inputContainer: {
     flexDirection: "row",
     alignSelf: "center",
@@ -231,7 +216,9 @@ const styles = StyleSheet.create({
   btnText: {
     borderWidth: 1,
     borderColor: "#F64B29",
-    padding: 10,
     borderRadius: 10,
+    width: 75,
+    alignSelf: "flex-end",
+    marginTop: 10,
   },
 });

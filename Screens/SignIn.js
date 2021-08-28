@@ -1,30 +1,29 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useLayoutEffect, useContext } from "react";
+import React, { useState, useLayoutEffect, useContext, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   TextInput,
   Image,
+  TouchableOpacity,
 } from "react-native";
-import { Input, Button } from "react-native-elements";
+import { Button } from "react-native-elements";
 import { Context } from "../context";
-import pics from "../images/stream.png";
+import pics from "../images/apple1.png";
+// import AsyncStorage from "@react-native-community/async-storage";
+import axios from "axios";
 
 const Sign_in = ({ navigation }) => {
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [comfirmPassword, setcComfirmPassword] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: { backgroundColor: "#F64B29" },
       headerTitleStyle: { color: "white" },
-      title: "Sign ",
+      title: "Login",
       headerShown: false,
     });
   }, [navigation]);
@@ -32,9 +31,67 @@ const Sign_in = ({ navigation }) => {
   const { state, setState } = useContext(Context);
 
   const navigateContext = () => {
+    // setState(state + 1);
+    // if (email !== "dan@gmail.com") {
+    //   return console.log("invalid credentials");
+    // }
     navigation.navigate("country-list");
-    setState(state + 1);
   };
+
+  // useEffect(() => {
+
+  //   return () => {
+  //     Login()
+  //   }
+  // }, [])
+
+  //// for mobile emulator
+  const login = async () => {
+    console.log("hallo");
+    fetch("http://10.0.2.2:5000/api/user/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        console.log(data);
+        try {
+          await AsyncStorage.setItem("token", data);
+        } catch {
+          (err) => console.log(err);
+        }
+      });
+  };
+
+  // for web
+  // const Login = async () => {
+  //   console.log("hallo");
+  //   fetch("http://localhost:5000/api/user/signin", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       email: email,
+  //       password: password,
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then(async (data) => {
+  //       console.log(data);
+  //       try {
+  //         await AsyncStorage.setItem("token", data);
+  //       } catch {
+  //         (err) => console.log(err);
+  //       }
+  //     });
+  // };
 
   // {Platform.OS ? "padding" : "height"}
   return (
@@ -43,10 +100,11 @@ const Sign_in = ({ navigation }) => {
       <Image
         source={pics}
         style={{
-          width: 150,
-          height: 150,
+          width: 170,
+          height: 170,
           marginBottom: 20,
           marginTop: 80,
+          resizeMode: "contain",
           // position: "absolute",
           // top: 10,
           // left: "30%",
@@ -61,7 +119,7 @@ const Sign_in = ({ navigation }) => {
             h3
             style={{
               textAlign: "center",
-              // marginTop: 10,
+              color: "white",
               fontSize: 30,
               letterSpacing: 1,
               fontWeight: "bold",
@@ -97,6 +155,7 @@ const Sign_in = ({ navigation }) => {
                   paddingBottom: 10,
                   textAlign: "right",
                   fontSize: 15,
+                  color: "white",
                 }}
               >
                 forgot password?
@@ -105,18 +164,27 @@ const Sign_in = ({ navigation }) => {
           </View>
 
           <View style={styles.btnContainer}>
-            <Button
-              containerStyle={styles.btn}
-              buttonStyle={{ backgroundColor: "#F64B29" }}
-              title="Login"
-              raised
-              onPress={navigateContext}
-            />
+            <TouchableOpacity>
+              <Button
+                containerStyle={styles.btn}
+                buttonStyle={{ backgroundColor: "#F64B29" }}
+                title="Login"
+                raised
+                onPress={navigateContext}
+              />
+            </TouchableOpacity>
 
-            <Text style={{ marginTop: 20 }}>
-              you dont have an account?{" "}
-              <Text onPress={() => navigation.navigate("signin")}>Sign up</Text>
-            </Text>
+            <TouchableOpacity>
+              <Text style={{ marginTop: 20, color: "white" }}>
+                you dont have an account?{" "}
+                <Text
+                  style={{ color: "#F64B29" }}
+                  onPress={() => navigation.navigate("signup")}
+                >
+                  Sign up
+                </Text>
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={{ height: 20 }} />
@@ -142,12 +210,12 @@ export default Sign_in;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1A1A21",
+    backgroundColor: "#C4C4C4",
     position: "relative",
     alignItems: "center",
   },
   contBackground: {
-    backgroundColor: "#C4C4C4",
+    backgroundColor: "#1A1A21",
     height: "65%",
     width: "100%",
     position: "absolute",
