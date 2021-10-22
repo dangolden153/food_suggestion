@@ -4,11 +4,11 @@
     "slug": "my_appp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/ficon.png",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/fsplash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#C9CBD2"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

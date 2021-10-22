@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useLayoutEffect, useContext, useEffect } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,14 +10,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Button } from "react-native-elements";
-import { Context } from "../context";
 import pics from "../images/apple1.png";
+import { auth } from "../firebase";
+
 // import AsyncStorage from "@react-native-community/async-storage";
 import axios from "axios";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Sign_in = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [state, setState] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -28,14 +33,11 @@ const Sign_in = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const { state, setState } = useContext(Context);
-
-  const navigateContext = () => {
-    // setState(state + 1);
-    // if (email !== "dan@gmail.com") {
-    //   return console.log("invalid credentials");
-    // }
-    navigation.navigate("country-list");
+  const handleCancel = () => {
+    if (state) {
+      setState(false) && setLoading(false);
+      return;
+    }
   };
 
   // useEffect(() => {
@@ -46,33 +48,9 @@ const Sign_in = ({ navigation }) => {
   // }, [])
 
   //// for mobile emulator
-  const login = async () => {
-    console.log("hallo");
-    fetch("http://10.0.2.2:5000/api/user/signin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    })
-      .then((response) => response.json())
-      .then(async (data) => {
-        console.log(data);
-        try {
-          await AsyncStorage.setItem("token", data);
-        } catch {
-          (err) => console.log(err);
-        }
-      });
-  };
-
-  // for web
-  // const Login = async () => {
+  // const login = async () => {
   //   console.log("hallo");
-  //   fetch("http://localhost:5000/api/user/signin", {
+  //   fetch("http://10.0.2.2:5000/api/user/signin", {
   //     method: "POST",
   //     headers: {
   //       "Content-Type": "application/json",
@@ -93,10 +71,62 @@ const Sign_in = ({ navigation }) => {
   //     });
   // };
 
+  const handleLogin = () => {
+    setLoading(true);
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then((response) => {
+        setState(true);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setState(true);
+        console.log(err);
+        setLoading(false);
+      });
+  };
+
   // {Platform.OS ? "padding" : "height"}
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+
+      {state && (
+        <View
+          style={{
+            textAlign: "center",
+            width: 250,
+            paddingVertical: 10,
+            paddingHorizontal: 5,
+            backgroundColor: "#3f3f3fb0",
+            top: 200,
+            zIndex: 10,
+            // position:"relative"
+          }}
+        >
+          <TouchableOpacity onPress={handleCancel}>
+            <MaterialIcons
+              name="cancel"
+              type="materialIcons"
+              color="white"
+              size={24}
+              style={{ zIndex: 50, alignSelf: "flex-end" }}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 10,
+              fontSize: 15,
+              letterSpacing: 1,
+              color: "white",
+            }}
+          >
+            {error}
+          </Text>
+        </View>
+      )}
       <Image
         source={pics}
         style={{
@@ -170,7 +200,8 @@ const Sign_in = ({ navigation }) => {
                 buttonStyle={{ backgroundColor: "#F64B29" }}
                 title="Login"
                 raised
-                onPress={navigateContext}
+                loading={loading}
+                onPress={handleLogin}
               />
             </TouchableOpacity>
 

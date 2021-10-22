@@ -2,7 +2,11 @@ import { StatusBar } from "expo-status-bar";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionPresets,
+  CardStyleInterpolators,
+} from "@react-navigation/stack";
 import { Context } from "./context";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -10,7 +14,7 @@ import foodReducer from "./reducer/foodReducer/FoodReducer";
 
 import Sign_up from "./Screens/SignUp";
 import Sign_in from "./Screens/SignIn";
-import CountryList from "./Screens/CountryList";
+// import CountryList from "./Screens/CountryList";
 import Meal from "./Screens/Meal";
 import Profile from "./Screens/Profile";
 import Popular from "./Screens/PopularFood";
@@ -20,18 +24,14 @@ import Breakfast from "./Screens/Breakfast";
 import Lunch from "./Screens/Lunch";
 import Dinner from "./Screens/Dinner";
 import Brunch from "./Screens/Brunch";
-import FirstOnboardingScreen from "./Screens/FirstOnboardingScreen";
-import SecondOnboardingScreen from "./Screens/SecondOnboardingScreen";
-import ThirdOnboardingScreen from "./Screens/ThirdOnboardingScreen";
 import MealContent from "./Screens/MealContent";
-import NavBar from "./components/NavBar";
-// import AsyncStorage from "@react-native-community/async-storage";
+import { auth, db } from "./firebase";
 
 const store = createStore(foodReducer);
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function AppNavigator() {
   const [state, setState] = useState(1);
   const [isloggedIn, setIsloggedIn] = useState(null);
 
@@ -45,55 +45,72 @@ export default function App() {
   //   }
   // }, [setIsloggedIn]);
 
+  const config = {
+    animation: "spring",
+    config: {
+      stiffness: 1000,
+      damping: 50,
+      mass: 3,
+      overShootingClamping: false,
+      restDisplacementThreshold: 0.01,
+      restSpeedThreshold: 0.01,
+    },
+  };
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user !== null) {
+        setIsloggedIn(true);
+        dispatch({ type: "users_details", payload: user });
+        console.log("users_details", user);
+      }
+
+      ///do other thing
+      else {
+        setIsloggedIn(false);
+        console.log("not authenticated");
+      }
+    });
+  }, [setIsloggedIn]);
+
   return (
     <Provider store={store}>
       <Context.Provider value={{ setState, state }}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Meal"
-            screenOptions={{ headerTitleAlign: "center" }}
+            initialRouteName="signup"
+            mode="modal"
+            screenOptions={{
+              gestureEnabled: true,
+              gestureDirection: "horizontal",
+              cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            }}
           >
-            {/* <Stack.Screen name="signup" component={Sign_up} />
-            <Stack.Screen name="signin" component={Sign_in} />
-            <Stack.Screen name="country-list" component={CountryList} /> */}
-            <Stack.Screen
-              name="NavBar"
-              component={NavBar}
-              options={{ headerShown: false }}
-            />
-
-            <Stack.Screen name="meal" component={Meal} />
-            <Stack.Screen name="Breakfast" component={Breakfast} />
-            <Stack.Screen name="Lunch" component={Lunch} />
-            <Stack.Screen name="Dinner" component={Dinner} />
-            <Stack.Screen name="Brunch" component={Brunch} />
-            <Stack.Screen name="cupboard" component={Cupboard} />
-
-            <Stack.Screen name="Profile" component={Profile} />
-            <Stack.Screen name="Popular" component={Popular} />
-            <Stack.Screen
-              name="FirstOnboardingScreen"
-              component={FirstOnboardingScreen}
-            />
-            <Stack.Screen
-              name="SecondOnboardingScreen"
-              component={SecondOnboardingScreen}
-            />
-            <Stack.Screen
-              name="ThirdOnboardingScreen"
-              component={ThirdOnboardingScreen}
-            />
-            <Stack.Screen name="MealContent" component={MealContent} />
-            {/* {isloggedIn ? (
+            {isloggedIn ? (
               <>
-                <Stack.Screen name="country-list" component={CountryList} />
-                <Stack.Screen name="meal" component={Meal} />
-                <Stack.Screen name="menu" component={Menu} />
+                <Stack.Screen
+                  name="meal"
+                  component={Meal}
+                  options={{ headerTitleAlign: "center" }}
+                />
+                <Stack.Screen
+                  name="Breakfast"
+                  component={Breakfast}
+                  options={{ headerTitleAlign: "center" }}
+                />
+                <Stack.Screen name="Lunch" component={Lunch} />
+                <Stack.Screen name="Dinner" component={Dinner} />
+                <Stack.Screen name="Brunch" component={Brunch} />
                 <Stack.Screen name="cupboard" component={Cupboard} />
-                <Stack.Screen name="Details" component={FoodDetail} />
 
                 <Stack.Screen name="Profile" component={Profile} />
                 <Stack.Screen name="Popular" component={Popular} />
+
+                <Stack.Screen
+                  name="MealContent"
+                  component={MealContent}
+                  options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+                />
               </>
             ) : (
               <>
@@ -104,11 +121,20 @@ export default function App() {
                   component={ForgotPassword}
                 />
               </>
-            )} */}
+            )}
+            {/* <Stack.Screen name="country-list" component={CountryList} /> */}
           </Stack.Navigator>
         </NavigationContainer>
       </Context.Provider>
     </Provider>
+  );
+}
+
+export default function App() {
+  return (
+    <View style={{ flex: 1, backgroundColor: "black" }}>
+      <AppNavigator />
+    </View>
   );
 }
 
@@ -144,3 +170,11 @@ const styles = StyleSheet.create({
 // open up a search component screen
 // display the number of favourite item picked
 /// check how to use .env
+
+//// installing firebase .../
+/// setting up the sign up and signout functionalities .../
+
+/// fetch food details from google
+/// work on the searcing functionalities
+/// push the add to cupboard to firebase firestore
+///

@@ -6,21 +6,26 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
+  Alert,
   TextInput,
   Image,
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import { Input, Button } from "react-native-elements";
-import { Context } from "../context";
+import { Button } from "react-native-elements";
+
 import pics from "../images/apple.png";
+import { auth } from "../firebase";
+import { Icon } from "react-native-elements";
 
 const Sign_up = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [comfirmPassword, setcComfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [state, setState] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -31,35 +36,82 @@ const Sign_up = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const { state, setState } = useContext(Context);
-
-  const navigateContext = () => {
-    navigation.navigate("signin");
-    setState(state + 1);
+  const handleCancel = () => {
+    if (state) {
+      setState(false) && setLoading(false);
+      return;
+    }
   };
 
-  const signUp = async () => {
-    console.log("hallo");
-    fetch("http://10.0.2.2:5000/api/user/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: username,
-        email: email,
-        password: password,
-        comfirmPassword: comfirmPassword,
-      }),
-    })
-      .then((response) => response.json())
-      .then(async (data) => {
-        console.log(data);
-        try {
-          await AsyncStorage.setItem("token", data);
-        } catch {
-          (err) => console.log(err);
-        }
+  // database sign up
+
+  // const signUp = async () => {
+  //   console.log("hallo");
+  //   fetch("http://10.0.2.2:5000/api/user/signup", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       username: username,
+  //       email: email,
+  //       password: password,
+  //       comfirmPassword: comfirmPassword,
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then(async (data) => {
+  //       console.log(data);
+  //       try {
+  //         await AsyncStorage.setItem("token", data);
+  //       } catch {
+  //         (err) => console.log(err);
+  //       }
+  //     });
+  // };
+  const handleLoginVadilation = () => {
+    if (!username.length) {
+      return Alert.alert("invalid username!");
+    }
+
+    if (!email) {
+      return Alert.alert("invalid email!");
+    }
+
+    if (!password || password.length < 6) {
+      return Alert.alert("invalid password!");
+    }
+
+    if (!comfirmPassword || comfirmPassword.length < 6) {
+      return Alert.alert("invalid comfirmPassword!");
+    }
+
+    if (password !== comfirmPassword) {
+      return Alert.alert("password did not match!");
+    }
+  };
+
+  const handleSignUp = () => {
+    setLoading(true);
+
+    if (handleLoginVadilation()) {
+      // Alert.alert("invalid username!");
+      setLoading(false);
+      return null;
+    }
+
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((response) => {
+        setState(true);
+        setLoading(false);
+      })
+      .catch((err) => {
+        // setError(err.message);
+        setState(true);
+        setLoading(false);
+
+        console.log(err);
       });
   };
 
@@ -67,6 +119,41 @@ const Sign_up = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
+
+      {state && (
+        <View
+          style={{
+            textAlign: "center",
+            width: 250,
+            paddingVertical: 10,
+            paddingHorizontal: 5,
+            backgroundColor: "#3f3f3fb0",
+            top: 200,
+            left: 80,
+            zIndex: 10,
+          }}
+        >
+          <TouchableOpacity onPress={handleCancel}>
+            <Icon
+              name="cancel"
+              type="materialIcons"
+              color="white"
+              style={{ zIndex: 50, alignSelf: "flex-end" }}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 10,
+              fontSize: 15,
+              letterSpacing: 1,
+              color: "white",
+            }}
+          >
+            {error}
+          </Text>
+        </View>
+      )}
       <Image
         source={pics}
         style={{
@@ -144,7 +231,8 @@ const Sign_up = ({ navigation }) => {
               buttonStyle={{ backgroundColor: "#F64B29" }}
               title="Sign up"
               raised
-              onPress={() => signUp()}
+              loading={loading}
+              onPress={() => handleSignUp()}
             />
 
             <TouchableOpacity>

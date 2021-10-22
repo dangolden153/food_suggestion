@@ -10,11 +10,15 @@ import { useDispatch, useSelector, connect } from "react-redux";
 import { foodType } from "../reducer/foodReducer/food_type";
 import { AddFoodToCupboard } from "../reducer/foodReducer/food_action";
 import { useNavigation } from "@react-navigation/native";
+import { auth } from "../firebase";
+import profilepics from "../images/apple1.png";
+
 const mealData = [
   {
     id: 1,
     mealName: "Salad",
-    description: "react native elements dist image",
+    description:
+      "Lorem ipsum dolor sit, amet consectetur adipisicing elit.Lorem ipsum dolor sit, amet consectetur adipisicing elit. Mollit quisquam ipsa itaque, quas posLorem ipsum dolor sit, amet consectetur adipisicing elit. Mollit quisquam ipsa itaque, quas posLorem ipsum dolor sit, amet consectetur adipisicing elit. Mollit quisquam ipsa itaque, quas possimus voluptates? Vitae facilis omnisin, distinctio iusto ex dolor nostrum modi totam temporibus ut quosipsam facere natus beatae amet officia odio aliquid, est pariaturasperiores? Quasi corporis molestiae doloribus explicabo vitaeprovident autem suscipit nisi.",
     img: require("../images/food_1.jpg"),
   },
   {
@@ -69,6 +73,10 @@ const Breakfast = ({ navigation }) => {
 
   const dispatch = useDispatch();
 
+  const hanldeSignOut = () => {
+    auth.signOut();
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: { backgroundColor: "#F64B29" },
@@ -99,6 +107,32 @@ const Breakfast = ({ navigation }) => {
               name="menu"
               size={30}
               color="white"
+            />
+          </TouchableOpacity>
+        </View>
+      ),
+
+      headerLeft: () => (
+        <View
+          style={{
+            width: 100,
+            paddingLeft: 15,
+
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.5}
+          >
+            <AntDesign name="arrowleft" size={30} color="white" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={hanldeSignOut} activeOpacity={0.5}>
+            <Image
+              source={profilepics}
+              style={{ width: 40, height: 40, borderRadius: 100 }}
             />
           </TouchableOpacity>
         </View>
