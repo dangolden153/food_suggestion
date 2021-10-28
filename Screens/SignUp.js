@@ -71,35 +71,37 @@ const Sign_up = ({ navigation }) => {
   // };
   const handleLoginVadilation = () => {
     if (!username.length) {
-      return Alert.alert("invalid username!");
+      Alert.alert("invalid username!");
+      return true;
     }
 
     if (!email) {
-      return Alert.alert("invalid email!");
+      Alert.alert("invalid email!");
+      return true;
     }
 
     if (!password || password.length < 6) {
-      return Alert.alert("invalid password!");
+      Alert.alert("invalid password!");
+      return true;
     }
 
     if (!comfirmPassword || comfirmPassword.length < 6) {
-      return Alert.alert("invalid comfirmPassword!");
+      Alert.alert("invalid comfirmPassword!");
+      return true;
     }
 
     if (password !== comfirmPassword) {
-      return Alert.alert("password did not match!");
+      Alert.alert("password did not match!");
+      return true;
     }
   };
 
   const handleSignUp = () => {
-    setLoading(true);
-
     if (handleLoginVadilation()) {
-      // Alert.alert("invalid username!");
-      setLoading(false);
       return null;
     }
 
+    setLoading(true);
     auth
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
@@ -107,8 +109,8 @@ const Sign_up = ({ navigation }) => {
         setLoading(false);
       })
       .catch((err) => {
-        // setError(err.message);
-        setState(true);
+        Alert.alert(err.message);
+        // setState(true);
         setLoading(false);
 
         console.log(err);

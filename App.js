@@ -61,7 +61,7 @@ function AppNavigator() {
     auth.onAuthStateChanged((user) => {
       if (user !== null) {
         setIsloggedIn(true);
-        dispatch({ type: "users_details", payload: user });
+        // dispatch({ type: "users_details", payload: user });
         console.log("users_details", user);
       }
 
